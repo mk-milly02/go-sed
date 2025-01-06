@@ -31,7 +31,10 @@ func main() {
 	}
 	//when no script is specified
 	if script == "" {
-		if *n != "" {
+		switch {
+		case strings.HasPrefix(*n, "/"):
+			output = filterByPartern(input, *n)
+		default:
 			output = filter(input, *n)
 		}
 	} else {
@@ -109,6 +112,22 @@ func filter(content []byte, n string) (result []byte) {
 			if err != nil {
 				panic(err)
 			}
+			result = append(result, []byte(l)...)
+		}
+	}
+	return result
+}
+
+func filterByPartern(content []byte, pattern string) (result []byte) {
+	pattern = strings.TrimPrefix(pattern, "/")
+	pattern = strings.TrimSuffix(pattern, "/p")
+	r := bytes.NewBuffer(content)
+	for {
+		l, err := r.ReadString('\n')
+		if err != nil {
+			break
+		}
+		if strings.Contains(l, pattern) {
 			result = append(result, []byte(l)...)
 		}
 	}
