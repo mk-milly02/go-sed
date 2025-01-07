@@ -43,7 +43,8 @@ func main() {
 			output = substitute(input, script)
 		case script == "G":
 			output = doubleSpace(input)
-			break
+		case strings.HasSuffix(script, "/d"):
+			output = removeBlankLines(input)
 		default:
 			panic("invalid script")
 		}
@@ -144,6 +145,20 @@ func doubleSpace(content []byte) (result []byte) {
 		}
 		result = append(result, []byte(l)...)
 		result = append(result, []byte("\r\n")...)
+	}
+	return result
+}
+
+func removeBlankLines(content []byte) (result []byte) {
+	r := bytes.NewBuffer(content)
+	for {
+		l, err := r.ReadString('\n')
+		if err != nil {
+			break
+		}
+		if l != "\n" && l != "\r\n" {
+			result = append(result, []byte(l)...)
+		}
 	}
 	return result
 }
