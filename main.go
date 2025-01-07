@@ -15,8 +15,14 @@ func main() {
 	var input []byte
 	var output []byte
 	n := flag.String("n", "1p", "only output a range of lines from the file")
-	i := flag.String("i", "s/The/Thee/g", "edit in-place")
+	i := flag.String("i", "s/The/Code/g", "edit in-place")
+	flag.Usage = func() {
+		println("Usage of: go run main.go [options] [script] [filename]")
+		println("Options:")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
+
 	//when no flag is specified
 	if flag.NFlag() == 0 {
 		script = flag.Arg(0)
@@ -24,12 +30,14 @@ func main() {
 	} else {
 		filename = flag.Arg(0)
 	}
+
 	//when no filename is specified
 	if filename == "" {
 		input = readFromStdin()
 	} else {
 		input = readFromFile(filename)
 	}
+
 	//when no script is specified
 	if script == "" {
 		switch {
