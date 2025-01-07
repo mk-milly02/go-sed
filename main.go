@@ -41,7 +41,8 @@ func main() {
 		switch {
 		case strings.HasPrefix(script, "s/"):
 			output = substitute(input, script)
-		case strings.HasPrefix(script, "p"):
+		case script == "G":
+			output = doubleSpace(input)
 			break
 		default:
 			panic("invalid script")
@@ -130,6 +131,19 @@ func filterByPartern(content []byte, pattern string) (result []byte) {
 		if strings.Contains(l, pattern) {
 			result = append(result, []byte(l)...)
 		}
+	}
+	return result
+}
+
+func doubleSpace(content []byte) (result []byte) {
+	r := bytes.NewBuffer(content)
+	for {
+		l, err := r.ReadString('\n')
+		if err != nil {
+			break
+		}
+		result = append(result, []byte(l)...)
+		result = append(result, []byte("\r\n")...)
 	}
 	return result
 }
