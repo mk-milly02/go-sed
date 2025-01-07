@@ -15,6 +15,7 @@ func main() {
 	var input []byte
 	var output []byte
 	n := flag.String("n", "1p", "only output a range of lines from the file")
+	i := flag.String("i", "s/The/Thee/g", "edit in-place")
 	flag.Parse()
 	//when no flag is specified
 	if flag.NFlag() == 0 {
@@ -34,6 +35,8 @@ func main() {
 		switch {
 		case strings.HasPrefix(*n, "/"):
 			output = filterByPartern(input, *n)
+		case strings.HasPrefix(*i, "s/"):
+			substituteInPlace(input, *i, filename)
 		default:
 			output = filter(input, *n)
 		}
@@ -161,4 +164,24 @@ func removeBlankLines(content []byte) (result []byte) {
 		}
 	}
 	return result
+}
+
+func substituteInPlace(content []byte, script, filename string) {
+	var result []byte
+	script = strings.TrimPrefix(script, "s/")
+	script = strings.TrimSuffix(script, "/g")
+	parts := strings.Split(script, "/")
+	if len(parts) != 2 {
+		panic("invalid substitution")
+	}
+	result = []byte(strings.ReplaceAll(string(content), parts[0], parts[1]))
+	file, err := os.OpenFile(filename, os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	_, err = file.Write(result)
+	if err != nil {
+		panic(err)
+	}
 }
